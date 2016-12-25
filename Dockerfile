@@ -1,4 +1,4 @@
-FROM nginx
+FROM debian:jessie
 
 MAINTAINER Weiyan Shao "lighteningman@gmail.com"
 
@@ -14,9 +14,14 @@ RUN tar xzf /tmp/s6-overlay-amd64.tar.gz -C / &&\
     tar -C /bin -xzf /tmp/docker-gen-linux-amd64-$DOCKER_GEN_VERSION.tar.gz && \
     rm /tmp/docker-gen-linux-amd64-$DOCKER_GEN_VERSION.tar.gz && \
     rm /tmp/s6-overlay-amd64.tar.gz && \
-    rm /etc/nginx/conf.d/default.conf && \
     apt-get update && \
-    apt-get install -y python ruby cron && \
+    apt-get install -y apt-transport-https && \
+    apt-key adv \
+       --keyserver hkp://ha.pool.sks-keyservers.net:80 \
+       --recv-keys 58118E89F3A912897C070ADBF76221572C52609D && \
+    echo 'deb https://apt.dockerproject.org/repo debian-jessie main' > /etc/apt/sources.list.d/docker.list && \
+    apt-get update && \
+    apt-get install -y python ruby cron docker-engine && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -26,5 +31,7 @@ RUN chmod a+x /bin/* && \
     chmod a+x /etc/cron.weekly/renew_certs
 
 VOLUME /var/lib/https-portal
+VOLUME /etc/nginx
+VOLUME /var/www
 
 ENTRYPOINT ["/init"]

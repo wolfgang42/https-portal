@@ -5,6 +5,8 @@ module Nginx
     File.open("/etc/nginx/nginx.conf" , 'w') do |f|
       f.write compiled_basic_config
     end
+
+    reload
   end
 
   def self.config_http(domain)
@@ -23,16 +25,8 @@ module Nginx
     reload
   end
 
-  def self.start
-    system 'nginx -q'
-  end
-
   def self.reload
-    system 'nginx -s reload'
-  end
-
-  def self.stop
-    system 'nginx -s stop'
+    system("docker", "exec", ENV["NGINX_CONTAINER"], "nginx", "-s", "reload")
   end
 
   private
